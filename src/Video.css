@@ -1,0 +1,102 @@
+.video {
+    display: flex;
+    justify-content: center;
+    position:relative;
+    margin-bottom: 10px;
+}
+.video-wrapper {
+    position:relative;
+}
+iframe {
+    width: 672px;
+    height: 378px;
+}
+.close-button {
+    z-index: 1;
+    position: absolute;
+    color: red;
+    font-weight: 700;
+    font-size: 22px;
+    bottom: 50px;
+    right: 5px;
+}
+.close-button:hover {
+    cursor: pointer;
+}
+img {
+    width: 246px;
+    height: 138px;   
+}
+.search-result {
+    display: flex;
+    flex-direction:row;
+    padding: 10px;
+}
+.img-container {
+    position: relative;
+}
+.img-container:hover {
+    cursor: pointer;
+}
+.info-container {
+    padding-left: 10px;
+    max-height: 100%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-content: flex-start;
+}
+.duration {
+    color: white;
+    font-weight: 600;
+    font-size: 0.8em;
+    display: inline-block;
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+}
+.title {
+    font-size: 1em;
+    font-weight: 500;
+    width: 100%;
+    padding-bottom: 5px;
+}
+.view-count, .published {
+    padding-left: 5px;
+}
+.channel-title, .view-count, .published, .description {
+    font-size: 14px;
+}
+.description {
+    padding-top: 10px;
+    width: 100%;
+}
+.disable-selection {
+    -moz-user-select: none; /* Firefox */
+     -ms-user-select: none; /* Internet Explorer */
+  -khtml-user-select: none; /* KHTML browsers (e.g. Konqueror) */
+ -webkit-user-select: none; /* Chrome, Safari, and Opera */
+ -webkit-touch-callout: none; /* Disable Android and iOS callouts*/
+}
+@media only screen and (max-width: 768px) {
+    img {
+        width: 300px;
+        height: 166px;   
+    }
+    .search-result {
+        flex-direction:column;
+        padding: 10px;
+    }
+    .view-count, .published {
+        padding-left: 0;
+        width: 100%;
+    }
+    .description {
+        display:none;
+    }
+    iframe {
+        width: 300px;
+        height: 170px;
+    }
+}
+
