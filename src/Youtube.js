@@ -1,52 +1,55 @@
 import React from 'react';
 import YoutubeForm from './YoutubeForm';
 import Video from './Video';
+import * as apiCalls from "./api";
 import "./Youtube.css";
-
-const youtube = 'https://www.googleapis.com/youtube/v3/';
-const apiKey = "";
 
 class Youtube extends React.Component {
     constructor(props){
         super(props);
         this.state = {
-            videos: []
+            searchResults: [],
+            videos: [],
+            loading: false,
+            error: {
+                message: null
+            }
         }
         this.search = this.search.bind(this);
+        this.trackScrolling = this.trackScrolling.bind(this);
     }
-    search(val){
-        const search = `${youtube}search?part=snippet&type=video&order=viewCount&maxResults=10&key=${apiKey}&q=${val}`;
-        fetch(search)
-            .then(data => data.json())
-            .then(data => data.items.map(el => el.id.videoId))
-            .then(searchString => {
-                const videos =  `${youtube}videos?id=${searchString.join()}&key=${apiKey}&part=snippet,statistics,player,contentDetails`;
-                return fetch(videos); 
-            })
-            .then(data => data.json())
-            .then(videos => videos.items.map(el => (
-                {   
-                    id: el.id,
-                    title: el.snippet.title,
-                    channelTitle: el.snippet.channelTitle,
-                    description: el.snippet.description,
-                    thumbnail: chooseThumbnail(el.snippet.thumbnails),
-                    publishedAt: el.snippet.publishedAt,
-                    viewCount: el.statistics.viewCount,
-                    player: el.player.embedHtml,
-                    duration: el.contentDetails.duration,
-                    videoPlay: false
-                }
-            )))
-            .then(videos => this.setState({videos}))
+    async search(val){
+        this.setState({
+            searchResults: [],
+            videos: [],
+            loading: true,
+            error: {
+                message: null
+            }
+        })
+        let searchResults = await apiCalls.getSearch(val);
+        console.log(searchResults);
+        if(typeof searchResults !== String){
+            this.setState({...this.state, searchResults});
+            this.loadSearch();
+        } else {
+            this.setState({...this.state, loading: false, error: {message: searchResults.message}});
+        }
+            
+    }
+    async loadSearch() {
+        const {searchResults, videos} = this.state;
+        this.setState({...this.state, loading: true})
+        const count = videos.length;
+        const videosToLoad = searchResults.slice(count, count+10);
+        let  loadSearchResults = await apiCalls.getSearchResults(videosToLoad);
+        this.setState({...this.state, videos: this.state.videos.concat(loadSearchResults), loading: false});
+            
     }
     openVideo(id){
         const videos = this.state.videos.map(el => {
             if(el.id === id){
-                return {
-                    ...el,
-                    videoPlay: true
-                }
+                return {...el, videoPlay: true}
             } else {
                 return el
             }
@@ -56,19 +59,32 @@ class Youtube extends React.Component {
     closeVideo(id){
         const videos = this.state.videos.map(el => {
             if(el.id === id){
-                return {
-                    ...el,
-                    videoPlay: false
-                }
+                return {...el, videoPlay: false}
             } else {
                 return el
             }
         })
         this.setState({videos})
     }
+    trackScrolling(e){
+        const el = document.documentElement.getBoundingClientRect().bottom;
+        const el2 = document.documentElement.clientHeight;
+        if(Math.floor(el) === el2){
+            document.removeEventListener('scroll', this.trackScrolling);
+            this.loadSearch();
+            setTimeout(() => document.addEventListener('scroll', this.trackScrolling),1000);
+        }
+    }
+    componentDidMount() {
+        document.addEventListener('scroll', this.trackScrolling);
+    }
+    componentWillUnmount() {
+        document.removeEventListener('scroll', this.trackScrolling);
+    }
 
     render(){
-        const searchVideos = this.state.videos.map(vid => (
+        const {searchResults, videos, loading, error} = this.state;
+        const searchVideos = videos.map(vid => (
             <Video 
                 key={vid.id}
                 {...vid}
@@ -76,21 +92,30 @@ class Youtube extends React.Component {
                 closeVideo={this.closeVideo.bind(this, vid.id)}
             />
         ))
+        let endOutput;
+        if(error.message){
+            endOutput = error.message;
+        }else if(loading){
+            endOutput = "Loading..."
+        } else if(searchResults.length && searchResults.length === videos.length){
+            endOutput = "No more videos"
+        }
         return(
-            <div className="appContainer">
-                <YoutubeForm search={this.search} />
-                <div className="search-results-container">
-                    {searchVideos} 
+            <div id="app">
+                <header>
+                    <h1>Find Youtube Videos</h1>
+                </header>
+                <div className="appContainer">
+                    <YoutubeForm search={this.search} />
+                    <div className="search-results-container">
+                        {searchVideos}
+                        <div className="closing-text">
+                            {endOutput}
+                        </div>
+                    </div>
                 </div>
             </div>
         )
-    }
-}
-function chooseThumbnail(thumbnails){
-    if(thumbnails.hasOwnProperty("maxres")){
-        return thumbnails.maxres.url
-    } else {
-        return thumbnails.standard.url
     }
 }
 

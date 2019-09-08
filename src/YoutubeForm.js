@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from "prop-types";
 import './YoutubeForm.css';
 
 class YoutubeForm extends React.Component {
@@ -34,3 +35,7 @@ class YoutubeForm extends React.Component {
 }
 
 export default YoutubeForm;
+
+YoutubeForm.propTypes = {
+    search: PropTypes.func.isRequired
+}

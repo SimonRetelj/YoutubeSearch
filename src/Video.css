@@ -71,6 +71,11 @@ img {
     padding-top: 10px;
     width: 100%;
 }
+.closing-text{
+    text-align: center;
+    padding: 20px;
+    font-weight: 700;
+}
 .disable-selection {
     -moz-user-select: none; /* Firefox */
      -ms-user-select: none; /* Internet Explorer */

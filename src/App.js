@@ -6,9 +6,6 @@ class App extends React.Component {
   render(){
     return(
       <div>
-        <header>
-          <h1>Find Youtube Videos</h1>
-        </header>
         <Youtube />
       </div>
       
